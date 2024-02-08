@@ -31,6 +31,24 @@
 // Warnings! Located here so they will appear just once in the build output.
 //
 
+// static_warning works like a static_assert but only emits a (messy) warning.
+#ifdef __GNUC__
+  namespace mfwarn {
+    struct true_type {};
+    struct false_type {};
+    template <int test> struct converter : public true_type {};
+    template <> struct converter<0> : public false_type {};
+  }
+  #define static_warning(cond, msg) \
+    struct CAT(static_warning, __LINE__) { \
+      void _(::mfwarn::false_type const&) __attribute__((deprecated(msg))) {}; \
+      void _(::mfwarn::true_type const&) {}; \
+      CAT(static_warning, __LINE__)() {_(::mfwarn::converter<(cond)>());} \
+    }
+#else
+  #define static_warning(...)
+#endif
+
 #if ENABLED(MARLIN_DEV_MODE)
   #warning "WARNING! Disable MARLIN_DEV_MODE for the final build!"
   #ifdef __LONG_MAX__
@@ -678,10 +696,11 @@
 //
 // Warn users of potential endstop/DIAG pin conflicts to prevent homing issues when not using sensorless homing
 //
-#if !USE_SENSORLESS
+#if !USE_SENSORLESS && HAS_DIAG_PINS
   #if ENABLED(USES_DIAG_JUMPERS) && DISABLED(DIAG_JUMPERS_REMOVED)
     #warning "Motherboard DIAG jumpers must be removed when SENSORLESS_HOMING is disabled. (Define DIAG_JUMPERS_REMOVED to suppress this warning.)"
-  #elif ENABLED(USES_DIAG_PINS) && DISABLED(DIAG_PINS_REMOVED)
+  #endif
+  #if ENABLED(USES_DIAG_PINS) && DISABLED(DIAG_PINS_REMOVED)
     #warning "Driver DIAG pins must be physically removed unless SENSORLESS_HOMING is enabled. (See https://bit.ly/2ZPRlt0) (Define DIAG_PINS_REMOVED to suppress this warning.)"
   #endif
 #endif
@@ -825,4 +844,18 @@
  */
 #if PIN_EXISTS(BEEPER) && ALL(SPEAKER, NO_SPEAKER)
   #warning "The BEEPER cannot produce tones so you can disable SPEAKER."
+#endif
+
+/**
+ * Fixed-Time Motion
+ */
+#if ALL(FT_MOTION, I2S_STEPPER_STREAM)
+  #warning "FT_MOTION has not been tested with I2S_STEPPER_STREAM."
+#endif
+
+/**
+ * User doesn't have or disabled G92?
+ */
+#if DISABLED(EDITABLE_STEPS_PER_UNIT)
+  #warning "EDITABLE_STEPS_PER_UNIT is required to enable G92 runtime configuration of steps-per-unit."
 #endif
