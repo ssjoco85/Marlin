@@ -691,9 +691,9 @@
     #define DEFAULT_Ki_LIST {   1.54,   1.54 }
     #define DEFAULT_Kd_LIST {  76.55,  76.55 }
   #else
-    #define DEFAULT_Kp  20.8800
-    #define DEFAULT_Ki   1.47000
-    #define DEFAULT_Kd  74.3200
+    #define DEFAULT_Kp  15.2148
+    #define DEFAULT_Ki   0.90560
+    #define DEFAULT_Kd  63.9022
   #endif
 #else
   #define BANG_MAX 255    // Limit hotend current while in bang-bang mode; 255=full current
@@ -780,9 +780,9 @@
   //#define PID_BED_DEBUG // Print Bed PID debug data to the serial port.
 
   // Creality Ender-3 Pro
-  #define DEFAULT_bedKp 44.23
-  #define DEFAULT_bedKi 8.51
-  #define DEFAULT_bedKd 153.32
+  #define DEFAULT_bedKp 44.0364
+  #define DEFAULT_bedKi 8.60090
+  #define DEFAULT_bedKd 150.311
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #else
@@ -1588,7 +1588,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { -44, -8, -3.48 }
+#define NOZZLE_TO_PROBE_OFFSET { -44, -8, -3.38 }
 
 // Enable and set to use a specific tool for probing. Disable to allow any tool.
 #define PROBING_TOOL 0
