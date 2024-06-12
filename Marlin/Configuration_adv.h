@@ -2569,7 +2569,7 @@
  *
  * Override the default value based on the driver type set in Configuration.h.
  */
-//#define MINIMUM_STEPPER_PULSE_NS 2000
+#define MINIMUM_STEPPER_PULSE_NS 100
 
 /**
  * Maximum stepping rate (in Hz) the stepper driver allows
