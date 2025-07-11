@@ -21,6 +21,7 @@ on:
     branches:
     - bugfix-2.1.x
     - 2.1.x
+    - release-*
     paths-ignore:
     - config/**
     - data/**
@@ -35,6 +36,9 @@ jobs:
     if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-22.04
+
+    env:
+      CONFIG_BRANCH: ${{ github.base_ref || github.ref_name }}
 
     strategy:
       fail-fast: true
@@ -204,6 +208,13 @@ jobs:
         sudo apt-get install libsdl2-dev
         sudo apt-get install libsdl2-net-dev
         sudo apt-get install libglm-dev
+
+    - name: Checkout Configurations
+      uses: actions/checkout@v4
+      with:
+        repository: MarlinFirmware/Configurations
+        ref: ${{ env.CONFIG_BRANCH }}
+        path: ConfigurationsRepo
 
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
