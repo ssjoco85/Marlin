@@ -236,10 +236,8 @@ void GcodeSuite::G34() {
             Z_TWEEN_SAFE_CLEARANCE                                     // z_clearance
           );
 
-          if (DEBUGGING(LEVELING)) {
-            DEBUG_ECHOLNPGM_P(PSTR("Probing X"), ppos.x, SP_Y_STR, ppos.y);
-            DEBUG_ECHOLNPGM("Height = ", z_probed_height);
-          }
+          if (DEBUGGING(LEVELING))
+            DEBUG_ECHOLN(F("Probing X"), ppos.x, FPSTR(SP_Y_STR), ppos.y, F(" Height = "), z_probed_height);
 
           if (isnan(z_probed_height)) {
             SERIAL_ECHOLNPGM(STR_ERR_PROBING_FAILED);
@@ -323,7 +321,7 @@ void GcodeSuite::G34() {
         msg.echoln();
         ui.set_status(msg);
 
-        auto decreasing_accuracy = [](const_float_t v1, const_float_t v2) {
+        auto decreasing_accuracy = [](const float v1, const float v2) {
           if (v1 < v2 * 0.7f) {
             SERIAL_ECHOLNPGM("Decreasing Accuracy Detected.");
             LCD_MESSAGE(MSG_DECREASING_ACCURACY);
