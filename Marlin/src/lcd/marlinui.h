@@ -48,13 +48,13 @@
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "e3v2/creality/dwin.h"
+  #include "dwin/creality/dwin.h"
 #elif ENABLED(DWIN_LCD_PROUI)
-  #include "e3v2/proui/dwin.h"
+  #include "dwin/proui/dwin.h"
 #endif
 
 #if ALL(HAS_STATUS_MESSAGE, IS_DWIN_MARLINUI)
-  #include "e3v2/marlinui/marlinui_dwin.h" // for LCD_WIDTH
+  #include "dwin/marlinui/marlinui_dwin.h" // for LCD_WIDTH
 #endif
 
 typedef bool (*statusResetFunc_t)();
@@ -667,6 +667,11 @@ public:
     static void preheat_all(const uint8_t m, const uint8_t e=active_extruder) { apply_preheat(m, PT_ALL, e); }
   #endif
 
+  /**
+   * The current screen will time out unless 'defer_return_to_status' is true,
+   * and the display will go back to the Status Screen.
+   * Call this method whenever the user interacts to reset the timeout.
+   */
   static void reset_status_timeout(const millis_t ms) {
     TERN(HAS_SCREEN_TIMEOUT, return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS, UNUSED(ms));
   }
