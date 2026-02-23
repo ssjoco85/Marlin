@@ -273,7 +273,7 @@ void Touch::touch(touch_control_t * const control) {
 
     case FEEDRATE:
       ui.clear_for_drawing();
-      MenuItem_int3::action(GET_TEXT_F(MSG_SPEED), &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
+      MenuItem_int3::action(GET_TEXT_F(MSG_SPEED), &motion.feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
       break;
 
     #if HAS_EXTRUDERS
@@ -306,6 +306,7 @@ void Touch::touch(touch_control_t * const control) {
   }
 }
 
+//
 // Set the control as "held" until the touch is released
 //
 void Touch::hold(touch_control_t * const control, const millis_t delay/*=0*/) {
