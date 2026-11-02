@@ -179,11 +179,12 @@ void GcodeSuite::get_destination_from_command() {
   // Get new XYZ position, whether absolute or relative
   LOOP_NUM_AXES(i) {
     if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
-      const float v = parser.value_axis_units((AxisEnum)i);
       if (skip_move)
         motion.destination[i] = motion.position[i];
-      else
+      else {
+        const float v = parser.value_axis_units((AxisEnum)i);
         motion.destination[i] = axis_is_relative((AxisEnum)i) ? motion.position[i] + v : motion.logical_to_native(v, (AxisEnum)i);
+      }
     }
     else
       motion.destination[i] = motion.position[i];
@@ -848,7 +849,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 360: M360(); break;                                  // M360: Firmware settings
       #endif
 
-      #if ENABLED(SCARA)
+      #if ENABLED(SCARA_CALIBRATION)
         case 360: if (M360()) return; break;                      // M360: SCARA Theta pos1
         case 361: if (M361()) return; break;                      // M361: SCARA Theta pos2
         case 362: if (M362()) return; break;                      // M362: SCARA Psi pos1
@@ -924,7 +925,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         #if ANY(FTM_SMOOTHING, FTM_POLYS)
           case 494: M494(); break;                                // M494: Fixed-Time Motion extras
         #endif
-        #if ENABLED(FTM_RESONANCE_TEST)
+        #if ENABLED(RESONANCE_TEST)
           case 495: M495(); break;                                // M495: Resonance test for Input Shaping
           case 496: M496(); break;                                // M496: Abort resonance test
         #endif
@@ -970,6 +971,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
 
       #if ENABLED(BAUD_RATE_GCODE)
         case 575: M575(); break;                                  // M575: Set serial baudrate
+      #endif
+
+      #if ENABLED(MKS_WIFI_MODULE)
+        case 587: M587(); break;                                  // M587: Set/report MKS WiFi network
       #endif
 
       #if ENABLED(NONLINEAR_EXTRUSION)
@@ -1181,7 +1186,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
       #if ENABLED(WIFI_CUSTOM_COMMAND)
         if (wifi_custom_command(parser.command_ptr)) break;
       #endif
-      parser.unknown_command_warning();
+      parser.unknown_command_warning();                           // Other unknown, including > 65535
   }
 
   if (!no_ok) queue.ok_to_send();
@@ -1238,7 +1243,7 @@ void GcodeSuite::process_subcommands_now(FSTR_P fgcode) {
     if (!delim) break;                                // Last command?
     pgcode = delim + 1;                               // Get the next command
   }
-  parser.parse(saved_cmd);                            // Restore the parser state
+  if (saved_cmd) parser.parse(saved_cmd);             // Restore the parser state (if any)
 }
 
 #pragma GCC diagnostic pop
@@ -1254,7 +1259,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
     *delim = '\n';                                    // Put back the newline
     gcode = delim + 1;                                // Get the next command
   }
-  parser.parse(saved_cmd);                            // Restore the parser state
+  if (saved_cmd) parser.parse(saved_cmd);             // Restore the parser state (if any)
 }
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)

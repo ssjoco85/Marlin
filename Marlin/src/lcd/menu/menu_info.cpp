@@ -30,6 +30,10 @@
 
 #include "menu_item.h"
 
+#if ENABLED(MKS_WIFI_MODULE)
+  void menu_info_mks_wifi();
+#endif
+
 #if ENABLED(CONFIGURABLE_MACHINE_NAME)
   #include "../../MarlinCore.h"
 #endif
@@ -38,8 +42,7 @@
   #include "game/game.h"
 #endif
 
-#define VALUE_ITEM(MSG, VALUE, STYL)    do{ char msg[21]; strcpy_P(msg, PSTR(": ")); strcpy(msg + 2, VALUE); STATIC_ITEM(MSG, STYL, msg); }while(0)
-#define VALUE_ITEM_F(MSG, PVALUE, STYL) do{ char msg[21]; strcpy_P(msg, PSTR(": ")); strcpy_P(msg + 2, PSTR(PVALUE)); STATIC_ITEM(MSG, STYL, msg); }while(0)
+#define VALUE_ITEM(MSG, VALUE, STYL)    do{ MString<20> msg; msg.set(F(": "),   VALUE);   STATIC_ITEM(MSG, STYL, msg); }while(0)
 
 #if ENABLED(PRINTCOUNTER)
 
@@ -67,11 +70,7 @@
 
     #if HAS_EXTRUDERS
       STATIC_ITEM(MSG_INFO_PRINT_FILAMENT, SS_FULL);                                        // Extruded total:
-      sprintf_P(buffer, PSTR("%ld.%im")
-        , long(stats.filamentUsed / 1000)
-        , int16_t(stats.filamentUsed / 100) % 10
-      );
-      STATIC_ITEM_F(nullptr, SS_FULL, buffer);                                              // > 125m
+      STATIC_ITEM_F(nullptr, SS_FULL, MString<20>(long(stats.filamentUsed / 1000), '.', int16_t(stats.filamentUsed / 100) % 10, 'm')); // > 125m
     #endif
 
     #if SERVICE_INTERVAL_1 > 0 || SERVICE_INTERVAL_2 > 0 || SERVICE_INTERVAL_3 > 0
@@ -296,6 +295,9 @@ void menu_info() {
   #else
     SUBMENU(MSG_INFO_PRINTER_MENU, menu_info_printer);           // Printer Info >
     SUBMENU(MSG_INFO_BOARD_MENU, menu_info_board);               // Board Info >
+    #if ENABLED(MKS_WIFI_MODULE)
+      SUBMENU(MSG_MKS_WIFI, menu_info_mks_wifi);                 // WiFi Module >
+    #endif
     #if HAS_TEMP_SENSOR
       SUBMENU(MSG_INFO_THERMISTOR_MENU, menu_info_thermistors);  // Thermistors >
     #endif
